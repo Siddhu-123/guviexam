@@ -27,27 +27,34 @@ $password_hash = password_hash($_POST["password_confirmation"], PASSWORD_DEFAULT
 
 $mysqli = require __DIR__ . "/database.php";
 
-$sql = "INSERT INTO user (name, email, password_hash,phone,dob,address)
-        VALUES (?, ?, ?,?,?,?)";
-        
-$stmt = $mysqli->stmt_init();
+$sql = "INSERT INTO user (name, email, password_hash, phone, dob, address)
+        VALUES (?, ?, ?, ?, ?, ?)";
 
-if ( ! $stmt->prepare($sql)) {
+$stmt = $mysqli->prepare($sql);
+
+if (!$stmt) {
     die("SQL error: " . $mysqli->error);
 }
 
-$stmt->bind_param("sssiss",$_POST["name"],$_POST["email"],$password_hash,$_POST["phone"],$_POST["dateofbirth"],$_POST["address"]);
-                  
-if ($stmt->execute()) {
+$stmt->bind_param(
+    "sssiss",
+    $_POST["name"],
+    $_POST["email"],
+    $password_hash,
+    $_POST["phone"],
+    $_POST["dateofbirth"],
+    $_POST["address"]
+);
 
-    header("Location: login.php");
+if ($stmt->execute()) {
+    header("Location: ../login.html");
     exit;
-    
 } else {
-    
-    if ($mysqli->errno === 1062) {
-        die("email already taken");
+    if ($stmt->errno === 1062) {
+        $error_message = "Email already taken";
+        echo $error_message;
     } else {
-        die($mysqli->error . " " . $mysqli->errno);
+        die("Error: " . $stmt->error . " " . $stmt->errno);
     }
 }
+?>

@@ -1,52 +1,22 @@
-const validation = new JustValidate("#signup");
+$(document).ready(function () {
+    $('#loginForm').submit(function (e) {
+        e.preventDefault();
 
-validation
-    .addField("#name", [
-        {
-            rule: "required"
-        }
-    ])
-    .addField("#email", [
-        {
-            rule: "required"
-        },
-        {
-            rule: "email"
-        },
-        {
-            validator: (value) => () => {
-                return fetch("validate-email.php?email=" + encodeURIComponent(value))
-                       .then(function(response) {
-                           return response.json();
-                       })
-                       .then(function(json) {
-                           return json.available;
-                       });
+        $.ajax({
+            url: 'php/login.php',
+            type: 'POST',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function (data) {
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else if (data.is_invalid) {
+                    $('#loginMessage').html('<em>Invalid login</em>');
+                }
             },
-            errorMessage: "email already taken"
-        }
-    ])
-    .addField("#password", [
-        {
-            rule: "required"
-        },
-        {
-            rule: "password"
-        }
-    ])
-    .onSuccess((event) => {
-        document.getElementById("signup").submit();
+            error: function (xhr, status, error) {
+                console.error(error);
+            }
+        });
     });
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+});
