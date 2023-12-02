@@ -1,9 +1,9 @@
 <?php
 
-$host = "localhost";
-$dbname = "login";
-$username = "root";
-$password = "";
+$host = "MySQL 8.2 Server";
+$dbname = "guviexam";
+$username = "siddhucode";
+$password = "siddhucode";
 
 $mysqli = new mysqli(hostname: $host, username: $username, password: $password, database: $dbname);
                      
