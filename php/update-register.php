@@ -6,20 +6,25 @@ $mysqli = require __DIR__ . "/database.php";
 $is_updated = false;
 
 if (isset($_SESSION["user_id"])) {
-    if ($_SERVER["REQUEST_METHOD"] === "POST") {
-        $name = $_POST["name"];
-        $email = $_POST["email"];
-        $phone = $_POST["phone"];
-        $dob = $_POST["dob"];
-        $address = $_POST["address"];
-        $update_query = "UPDATE user SET name='$name', email='$email', phone='$phone', dob='$dob', address='$address' WHERE id={$_SESSION["user_id"]}";
-        if ($mysqli->query($update_query) === TRUE) {
-            $is_updated = true;
-        } else {
-            echo "Error updating record: " . $mysqli->error;
-        }
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $name = $_POST["name"];
+    $email = $_POST["email"];
+    $phone = $_POST["phone"];
+    $dob = $_POST["dob"];
+    $address = $_POST["address"];
+    
+    $update_query = $mysqli->prepare("UPDATE user SET name=?, email=?, phone=?, dob=?, address=? WHERE id=?");
+    
+    $update_query->bind_param("ssissi", $name, $email, $phone, $dob, $address, $_SESSION["user_id"]);
+    
+    if ($update_query->execute()) {
+        $is_updated = true;
+    } else {
+        echo "Error updating record: " . $mysqli->error;
     }
-
+    
+    $update_query->close();
+}
     $sql = "SELECT * FROM user WHERE id = {$_SESSION["user_id"]}";
 
     $result = $mysqli->query($sql);
@@ -60,7 +65,7 @@ if (isset($_SESSION["user_id"])) {
 
                 <div class="mb-3">
                     <label for="phone" class="form-label">Phone Number</label>
-                    <input type="tel" class="form-control" id="phone" name="phone" value="<?= htmlspecialchars($user["phone"]) ?>" required>
+                    <input type="number" class="form-control" id="phone" name="phone" value="<?= htmlspecialchars($user["phone"]) ?>" required>
                 </div>
 
                 <div class="mb-3">
